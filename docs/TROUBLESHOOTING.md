@@ -64,6 +64,18 @@ rm -f data.txt
 
 Then rerun the demo.
 
+## I Forgot The Commands
+
+Run:
+
+```bash
+oxide guide
+oxide status
+```
+
+`guide` shows the beginner workflow. `status` shows whether you have recorded
+history and what changed recently.
+
 ## OpenAI Key Not Found
 
 Symptom:
@@ -98,9 +110,11 @@ Run:
 oxide doctor
 oxide reset --yes
 rm -f data.txt
+oxide init
 oxide run "echo 'version 1' > data.txt"
 oxide run "cat data.txt"
 oxide run "echo 'version 2' > data.txt"
+oxide timeline --failures
 oxide lineage data.txt
 oxide graph
 ```

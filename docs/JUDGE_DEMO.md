@@ -21,6 +21,8 @@ If you want a clean demo:
 ```bash
 oxide reset --yes
 rm -f data.txt
+oxide init
+oxide doctor
 ```
 
 For AI answers, set a private API key outside Git:
@@ -48,6 +50,7 @@ Then ask questions:
 ```bash
 oxide ask "what commands today"
 oxide ask "what changed in data.txt?"
+oxide timeline --failures
 oxide lineage data.txt
 oxide graph
 ```
@@ -64,7 +67,8 @@ oxide timeline --since "10 minutes ago"
 2. "Before every command, Oxide snapshots the project files using blake2b hashes."
 3. "After every command, it snapshots again and stores the diff: new files, changed files, deleted files, stdout, stderr, exit code, timestamp, and Python imports."
 4. "Now I intentionally break a command by importing a missing Python module."
-5. "The key part is that I can now ask questions after the fact. Oxide can explain command history, file lineage, and failures."
+5. "The timeline gives a plain-English clue: the command failed in inline Python and shows the final exception."
+6. "The key part is that I can now ask questions after the fact. Oxide can explain command history, file lineage, and failures."
 
 ## Expected Story
 

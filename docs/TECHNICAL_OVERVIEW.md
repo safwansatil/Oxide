@@ -139,12 +139,15 @@ Supported graph operations:
 ## CLI Commands
 
 ```bash
+oxide init
 oxide run "command"
+oxide status
 oxide ask "question"
 oxide lineage path/to/file
 oxide graph
 oxide timeline --since "2 hours ago"
 oxide doctor
+oxide guide
 oxide reset --yes
 ```
 
