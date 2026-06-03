@@ -53,3 +53,9 @@ oxide ask "what changed in data.txt?"
 oxide lineage data.txt
 oxide graph
 ```
+
+## Docs
+
+- `docs/JUDGE_DEMO.md`: live demo script and judge talking points.
+- `docs/TECHNICAL_OVERVIEW.md`: architecture, storage, graph, and AI details.
+- `docs/TROUBLESHOOTING.md`: demo-day fixes and setup checks.
