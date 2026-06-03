@@ -170,7 +170,7 @@ class CommandRecorder:
         self.cwd = Path(cwd or os.getcwd()).expanduser().resolve()
         self.digest_size = digest_size
         self.excluded_dirs = set(DEFAULT_EXCLUDED_DIRS if excluded_dirs is None else excluded_dirs)
-        self.db_path = Path(db_path or self.cwd / ".oxide" / "oxide.sqlite3").expanduser().resolve()
+        self.db_path = Path(db_path or self.cwd / ".oxide" / "oxide.db").expanduser().resolve()
         self._db_related_paths = {
             self.db_path,
             self.db_path.with_name(self.db_path.name + "-journal"),

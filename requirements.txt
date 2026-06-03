@@ -1,1 +1,4 @@
-# Oxide currently uses only the Python standard library.
+click>=8.1
+dateparser>=1.2
+networkx>=3.0
+openai>=1.0

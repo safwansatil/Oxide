@@ -17,4 +17,4 @@ metadata so later tooling can explain how a workspace changed.
 python cli.py -- python -c "from pathlib import Path; Path('out.txt').write_text('ok')"
 ```
 
-By default, records are written to `.oxide/oxide.sqlite3`.
+By default, records are written to `.oxide/oxide.db`.
