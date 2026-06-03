@@ -164,13 +164,17 @@ class ExecutionGraph:
             command = row["command"]
             if isinstance(command, list):
                 command = " ".join(str(part) for part in command)
+            state = "OK" if _exit_code(output) == 0 else "FAIL"
             lines.append(
-                f"[{row['id']}] {row['timestamp']} exit={_exit_code(output)} {command}"
+                f"[{row['id']:>3}] {state:<4} {row['timestamp']}  {command}"
             )
+            lines.append(f"  |-- hash {row['command_hash'][:16]}")
             for filepath in changed[:8]:
-                lines.append(f"  -> {filepath}")
+                lines.append(f"  |-- writes {filepath}")
             for filepath in deleted[:8]:
-                lines.append(f"  -x {filepath}")
+                lines.append(f"  |-- deletes {filepath}")
+            if not changed and not deleted:
+                lines.append("  `-- writes none")
         return "\n".join(lines)
 
     def _ensure_graph(self) -> Any:

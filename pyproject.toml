@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "oxide-ai"
+version = "0.1.0"
+description = "Forensic command recorder and natural language execution history assistant."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "click>=8.1",
+    "dateparser>=1.2",
+    "networkx>=3.0",
+    "openai>=1.0",
+]
+
+[project.scripts]
+oxide = "cli:main"
+
+[tool.setuptools]
+py-modules = ["cli"]
+
+[tool.setuptools.packages.find]
+include = ["oxide_ai*", "oxide_daemon*"]

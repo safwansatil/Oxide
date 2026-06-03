@@ -29,6 +29,7 @@ class QueryEngineError(RuntimeError):
 def answer_question(question: str, oxide_dir: str = ".oxide") -> str:
     """Answer a natural language question using SQLite history and OpenAI."""
 
+    _load_dotenv()
     db_path = _resolve_db_path(oxide_dir)
     rows = _load_command_rows(db_path, limit=MAX_RECENT_COMMANDS)
     context = _build_context(rows)
@@ -359,6 +360,7 @@ def _exit_code(output_snapshot: Mapping[str, Any]) -> int | None:
 
 
 def _call_openai(question: str, context: Mapping[str, Any]) -> str:
+    _load_dotenv()
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
         raise QueryEngineError("OPENAI_API_KEY is not set")
@@ -570,6 +572,29 @@ def _loads_json(value: str, fallback: Any) -> Any:
         return json.loads(value)
     except (TypeError, json.JSONDecodeError):
         return fallback
+
+
+def _load_dotenv(paths: Iterable[Path] | None = None) -> None:
+    candidates = list(paths or [Path.cwd() / ".env", Path.cwd() / ".oxide" / ".env"])
+    for path in candidates:
+        if not path.exists():
+            continue
+        try:
+            for raw_line in path.read_text(encoding="utf-8").splitlines():
+                line = raw_line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if line.startswith("export "):
+                    line = line[len("export ") :].strip()
+                if "=" not in line:
+                    continue
+                key, value = line.split("=", 1)
+                key = key.strip()
+                value = value.strip().strip('"').strip("'")
+                if key and key not in os.environ:
+                    os.environ[key] = value
+        except OSError:
+            continue
 
 
 def _bounded_json(value: Mapping[str, Any], max_chars: int) -> str:

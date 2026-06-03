@@ -374,9 +374,74 @@ class CommandRecorder:
             "stderr": subprocess.PIPE,
             "text": True,
         }
+        command, shell = self._prepare_shell_command(command, shell, env)
+        kwargs["shell"] = shell
         if os.name == "posix":
             kwargs["preexec_fn"] = self._child_preexec
         return subprocess.Popen(command, **kwargs)
+
+    @staticmethod
+    def _prepare_shell_command(
+        command: str | Sequence[str],
+        shell: bool,
+        env: Mapping[str, str],
+    ) -> tuple[str | Sequence[str], bool]:
+        if (
+            shell
+            and os.name == "nt"
+            and isinstance(command, str)
+            and env.get("MSYSTEM")
+        ):
+            bash_path = CommandRecorder._resolve_windows_git_bash(env)
+            if bash_path:
+                return [bash_path, "-lc", command], False
+        return command, shell
+
+    @staticmethod
+    def _resolve_windows_git_bash(env: Mapping[str, str]) -> str | None:
+        override = env.get("OXIDE_SHELL")
+        if override and Path(override).expanduser().exists():
+            return str(Path(override).expanduser())
+
+        path_entries = [
+            entry.strip('"')
+            for entry in env.get("PATH", "").split(os.pathsep)
+            if entry.strip('"')
+        ]
+        candidates: list[Path] = []
+
+        for entry in path_entries:
+            path = Path(entry)
+            candidate = path / "bash.exe"
+            if _safe_exists(candidate) and _looks_like_git_bash(candidate):
+                candidates.append(candidate)
+
+            text = str(path)
+            lowered = text.lower()
+            if lowered.endswith("\\cmd") and "git" in lowered:
+                candidates.append(path.parent / "bin" / "bash.exe")
+                candidates.append(path.parent / "usr" / "bin" / "bash.exe")
+            if lowered.endswith("\\bin") and "git" in lowered:
+                candidates.append(path / "bash.exe")
+                candidates.append(path.parent / "usr" / "bin" / "bash.exe")
+
+        candidates.extend(
+            [
+                Path(r"C:\Program Files\Git\bin\bash.exe"),
+                Path(r"C:\Program Files\Git\usr\bin\bash.exe"),
+                Path(r"C:\Program Files (x86)\Git\bin\bash.exe"),
+                Path(r"C:\Program Files (x86)\Git\usr\bin\bash.exe"),
+            ]
+        )
+
+        for candidate in candidates:
+            try:
+                resolved = candidate.resolve()
+            except OSError:
+                resolved = candidate
+            if _safe_exists(resolved) and _looks_like_git_bash(resolved):
+                return str(resolved)
+        return None
 
     @staticmethod
     def _child_preexec() -> None:
@@ -480,6 +545,8 @@ class CommandRecorder:
         if env:
             command_env.update({str(key): str(value) for key, value in env.items()})
 
+        self._prepend_runtime_paths(command_env)
+
         existing_pythonpath = command_env.get("PYTHONPATH")
         command_env["PYTHONPATH"] = (
             str(tracker_dir)
@@ -488,6 +555,21 @@ class CommandRecorder:
         )
         command_env["OXIDE_IMPORT_LOG"] = str(import_log)
         return command_env, import_log
+
+    @staticmethod
+    def _prepend_runtime_paths(command_env: dict[str, str]) -> None:
+        python_dir = Path(sys.executable).resolve().parent
+        candidates = [python_dir, python_dir / "Scripts"]
+        existing = command_env.get("PATH", "")
+        existing_parts = existing.split(os.pathsep) if existing else []
+        existing_lower = {part.lower() for part in existing_parts}
+        additions = [
+            str(candidate)
+            for candidate in candidates
+            if candidate.exists() and str(candidate).lower() not in existing_lower
+        ]
+        if additions:
+            command_env["PATH"] = os.pathsep.join(additions + existing_parts)
 
     @staticmethod
     def _read_import_log(import_log: Path | None) -> dict[str, Any]:
@@ -560,6 +642,20 @@ def _is_relative_to(path: Path, parent: Path) -> bool:
         path.relative_to(parent)
         return True
     except ValueError:
+        return False
+
+
+def _looks_like_git_bash(path: Path) -> bool:
+    lowered = str(path).lower()
+    if "\\windows\\system32\\" in lowered or lowered.endswith("\\windows\\system32\\bash.exe"):
+        return False
+    return "git" in lowered or "msys" in lowered
+
+
+def _safe_exists(path: Path) -> bool:
+    try:
+        return path.exists()
+    except OSError:
         return False
 
 
