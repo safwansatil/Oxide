@@ -1,5 +1,22 @@
 # Oxide
 
+
+```
+________         .__    .___                                                                                  
+\_____  \ ___  __|__| __| _/____                                                                              
+ /   |   \\  \/  /  |/ __ |/ __ \                                                                             
+/    |    \>    <|  / /_/ \  ___/                                                                             
+\_______  /__/\_ \__\____ |\___  >                                                                            
+        \/      \/       \/    \/                                                                             
+  __                       .__              .__      _____                                  .__               
+_/  |_  ___________  _____ |__| ____ _____  |  |   _/ ____\___________   ____   ____   _____|__| ____   ______
+\   __\/ __ \_  __ \/     \|  |/    \\__  \ |  |   \   __\/  _ \_  __ \_/ __ \ /    \ /  ___/  |/ ___\ /  ___/
+ |  | \  ___/|  | \/  Y Y  \  |   |  \/ __ \|  |__  |  | (  <_> )  | \/\  ___/|   |  \\___ \|  \  \___ \___ \ 
+ |__|  \___  >__|  |__|_|  /__|___|  (____  /____/  |__|  \____/|__|    \___  >___|  /____  >__|\___  >____  >
+           \/            \/        \/     \/                                \/     \/     \/        \/     \/ 
+```
+
+
 Oxide turns terminal work into a forensic timeline.
 
 Normal shell history remembers command strings. Oxide records what actually
@@ -10,7 +27,7 @@ ask natural-language questions about your local execution history.
 ## Quick Start
 
 ```bash
-cd /d/new_wrkspc/oxide
+git clone https://github.com/safwansatil/Oxide .
 python -m pip install -e .
 export PATH="$PATH:/c/Users/Safwan/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/Scripts"
 
